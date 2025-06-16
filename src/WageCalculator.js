@@ -24,7 +24,7 @@ const hourlyRates = {
 };
 
 function WageCalculator() {
-  const [role, setRole] = useState("vakkenvuller");
+  const [role, setRole] = useState("teamleider");
   const [age, setAge] = useState("");
   const [hours, setHours] = useState("");
   const [minutes, setMinutes] = useState("");
