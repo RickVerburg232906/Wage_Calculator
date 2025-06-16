@@ -29,6 +29,16 @@ function WageCalculator() {
   const [minutes, setMinutes] = useState("");
   const [wage, setWage] = useState(null);
 
+  const parseAndSum = (input) => {
+    // split by comma, trim spaces, convert to numbers, filter invalid
+    return input
+      .split(",")
+      .map((v) => v.trim())
+      .map((v) => Number(v))
+      .filter((v) => !isNaN(v) && v >= 0)
+      .reduce((acc, val) => acc + val, 0);
+  };
+
   const handleCalculate = () => {
     if (!age || !role) {
       alert("Selecteer functie en leeftijd");
@@ -40,13 +50,16 @@ function WageCalculator() {
       return;
     }
 
-    const totalHours = parseFloat(hours || 0) + (parseFloat(minutes || 0) / 60);
-    if (isNaN(totalHours) || totalHours <= 0) {
+    const totalHours = parseAndSum(hours);
+    const totalMinutes = parseAndSum(minutes);
+
+    if (totalHours === 0 && totalMinutes === 0) {
       alert("Voer een geldig aantal uren en minuten in");
       return;
     }
 
-    const totalWage = rate * totalHours;
+    const totalTimeInHours = totalHours + totalMinutes / 60;
+    const totalWage = rate * totalTimeInHours;
     setWage(totalWage.toFixed(2));
   };
 
@@ -62,7 +75,6 @@ function WageCalculator() {
         onChange={(e) => {
           const newRole = e.target.value;
           setRole(newRole);
-          // Reset leeftijd alleen als die niet bestaat voor nieuwe functie
           if (!Object.keys(hourlyRates[newRole]).includes(age)) {
             setAge("");
             setWage(null);
@@ -91,31 +103,28 @@ function WageCalculator() {
         ))}
       </select>
 
-      <label>Uren:</label>
+      <label>Uren (komma-gescheiden, bv. 2,3,4):</label>
       <input
-        type="number"
-        min="0"
+        type="text"
         value={hours}
         onChange={(e) => {
           setHours(e.target.value);
           setWage(null);
         }}
         style={{ width: "100%", marginBottom: 10, padding: 5 }}
-        placeholder="Aantal uren"
+        placeholder="Aantal uren, bv. 2,3,4"
       />
 
-      <label>Minuten:</label>
+      <label>Minuten (komma-gescheiden, bv. 10,20,15):</label>
       <input
-        type="number"
-        min="0"
-        max="59"
+        type="text"
         value={minutes}
         onChange={(e) => {
           setMinutes(e.target.value);
           setWage(null);
         }}
         style={{ width: "100%", marginBottom: 10, padding: 5 }}
-        placeholder="Aantal minuten"
+        placeholder="Aantal minuten, bv. 10,20,15"
       />
 
       <button onClick={handleCalculate} style={{ padding: "10px 20px", cursor: "pointer" }}>
@@ -132,4 +141,3 @@ function WageCalculator() {
 }
 
 export default WageCalculator;
-
