@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import "./WageCalculator.css"; // Custom styles
 
 const hourlyRates = {
   vakkenvuller: {
-    13: 5.90,
-    14: 5.90,
-    15: 5.90,
-    16: 6.80,
+    13: 5.9,
+    14: 5.9,
+    15: 5.9,
+    16: 6.8,
     17: 7.77,
     18: 9.19,
     19: 11.03,
@@ -29,44 +30,28 @@ function WageCalculator() {
   const [minutes, setMinutes] = useState("");
   const [wage, setWage] = useState(null);
 
-  const parseAndSum = (input) => {
-    // split by comma, trim spaces, convert to numbers, filter invalid
-    return input
-      .split(",")
-      .map((v) => v.trim())
-      .map((v) => Number(v))
-      .filter((v) => !isNaN(v) && v >= 0)
-      .reduce((acc, val) => acc + val, 0);
-  };
-
   const handleCalculate = () => {
-    if (!age || !role) {
-      alert("Selecteer functie en leeftijd");
-      return;
-    }
+    if (!age || !role) return alert("Selecteer functie en leeftijd");
     const rate = hourlyRates[role][age];
-    if (!rate) {
-      alert("Geen tarief gevonden voor deze leeftijd en functie");
-      return;
-    }
+    if (!rate) return alert("Geen tarief gevonden voor deze leeftijd en functie");
 
-    const totalHours = parseAndSum(hours);
-    const totalMinutes = parseAndSum(minutes);
+    const hourList = hours.split(",").map((h) => parseFloat(h) || 0);
+    const minuteList = minutes.split(",").map((m) => parseFloat(m) || 0);
 
-    if (totalHours === 0 && totalMinutes === 0) {
-      alert("Voer een geldig aantal uren en minuten in");
-      return;
-    }
+    const totalHours =
+      hourList.reduce((sum, h) => sum + h, 0) +
+      minuteList.reduce((sum, m) => sum + m / 60, 0);
 
-    const totalTimeInHours = totalHours + totalMinutes / 60;
-    const totalWage = rate * totalTimeInHours;
+    if (isNaN(totalHours) || totalHours <= 0) return alert("Voer geldige uren en minuten in");
+
+    const totalWage = rate * totalHours;
     setWage(totalWage.toFixed(2));
   };
 
   const agesForRole = Object.keys(hourlyRates[role]);
 
   return (
-    <div style={{ maxWidth: 400, margin: "auto", padding: 20, fontFamily: "Arial, sans-serif" }}>
+    <div className="wage-container">
       <h2>Loon Calculator</h2>
 
       <label>Functie:</label>
@@ -80,7 +65,6 @@ function WageCalculator() {
             setWage(null);
           }
         }}
-        style={{ width: "100%", marginBottom: 10, padding: 5 }}
       >
         <option value="vakkenvuller">Vakkenvuller</option>
         <option value="teamleider">Teamleider</option>
@@ -93,7 +77,6 @@ function WageCalculator() {
           setAge(e.target.value);
           setWage(null);
         }}
-        style={{ width: "100%", marginBottom: 10, padding: 5 }}
       >
         <option value="">Selecteer leeftijd</option>
         {agesForRole.map((a) => (
@@ -103,7 +86,7 @@ function WageCalculator() {
         ))}
       </select>
 
-      <label>Uren (komma-gescheiden, bv. 2,3,4):</label>
+      <label>Uren (bv. 20,23,25):</label>
       <input
         type="text"
         value={hours}
@@ -111,11 +94,10 @@ function WageCalculator() {
           setHours(e.target.value);
           setWage(null);
         }}
-        style={{ width: "100%", marginBottom: 10, padding: 5 }}
-        placeholder="Aantal uren, bv. 2,3,4"
+        placeholder="Aantal uren"
       />
 
-      <label>Minuten (komma-gescheiden, bv. 10,20,15):</label>
+      <label>Minuten (bv. 30,45,15):</label>
       <input
         type="text"
         value={minutes}
@@ -123,19 +105,12 @@ function WageCalculator() {
           setMinutes(e.target.value);
           setWage(null);
         }}
-        style={{ width: "100%", marginBottom: 10, padding: 5 }}
-        placeholder="Aantal minuten, bv. 10,20,15"
+        placeholder="Aantal minuten"
       />
 
-      <button onClick={handleCalculate} style={{ padding: "10px 20px", cursor: "pointer" }}>
-        Bereken Loon
-      </button>
+      <button onClick={handleCalculate}>Bereken Loon</button>
 
-      {wage !== null && (
-        <div style={{ marginTop: 20, fontWeight: "bold" }}>
-          Totaal loon: € {wage}
-        </div>
-      )}
+      {wage !== null && <div className="result">Totaal loon: € {wage}</div>}
     </div>
   );
 }
