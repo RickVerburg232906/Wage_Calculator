@@ -70,21 +70,22 @@ function WageCalculator() {
         <option value="teamleider">Teamleider</option>
       </select>
 
-      <label>Leeftijd:</label>
-      <select
-        value={age}
-        onChange={(e) => {
-          setAge(e.target.value);
-          setWage(null);
-        }}
-      >
-        <option value="">Selecteer leeftijd</option>
-        {agesForRole.map((a) => (
-          <option key={a} value={a}>
-            {a}
-          </option>
-        ))}
-      </select>
+      <label>Leeftijd: {age || "—"}</label>
+      {agesForRole.length > 0 && (
+        <input
+          type="range"
+          min={Math.min(...agesForRole.map(Number))}
+          max={Math.max(...agesForRole.map(Number))}
+          step={1}
+          value={age || Math.min(...agesForRole.map(Number))}
+          onChange={(e) => {
+            setAge(e.target.value);
+            setWage(null);
+          }}
+          style={{ width: "100%", marginBottom: 10 }}
+        />
+      )}
+
 
       <label>Uren (bv. 20,23,25):</label>
       <input
